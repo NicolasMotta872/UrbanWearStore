@@ -1,19 +1,14 @@
 <?php
-// Database configuration
-$db_host = 'localhost';
-$db_user = 'root';
-$db_password = ''; // coloque a senha do seu root, se houver
-$db_name = 'urbanwear_db';
-$db_port = 3307;  // porta do seu MySQL no XAMPP
+// Database connection configuration
+$host = 'localhost';
+$db_name = 'loja_virtual';
+$username = 'root';
+$password = '';
 
-// Create database connection
-$conn = new mysqli($db_host, $db_user, $db_password, $db_name, $db_port);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: (" . $conn->connect_errno . ") " . $conn->connect_error);
+try {
+    $pdo = new PDO("mysql:host=$host;dbname=$db_name;charset=utf8", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+} catch(PDOException $e) {
+    die("Erro na conexão com o banco de dados: " . $e->getMessage());
 }
-
-// Set character set
-$conn->set_charset("utf8mb4");
-?>

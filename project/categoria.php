@@ -1,31 +1,45 @@
 <?php
 require_once 'includes/header.php';
 
-// Buscar produtos em destaque (últimos 8 adicionados)
+// Verificar se o ID da categoria foi fornecido
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
+    header('Location: /project/index.php');
+    exit;
+}
+
+$categoria_id = $_GET['id'];
+
+// Buscar informações da categoria
+$stmt = $pdo->prepare("SELECT * FROM categorias WHERE id = ?");
+$stmt->execute([$categoria_id]);
+$categoria = $stmt->fetch();
+
+// Se a categoria não existe, redirecionar para a página inicial
+if (!$categoria) {
+    header('Location: /project/index.php');
+    exit;
+}
+
+// Buscar produtos da categoria
 $stmt = $pdo->prepare("
-    SELECT p.*, c.nome as categoria_nome 
-    FROM produtos p
-    JOIN categorias c ON p.categoria_id = c.id
-    WHERE p.estoque > 0
-    ORDER BY p.id DESC
-    LIMIT 8
+    SELECT * FROM produtos 
+    WHERE categoria_id = ? AND estoque > 0
+    ORDER BY nome
 ");
-$stmt->execute();
+$stmt->execute([$categoria_id]);
 $produtos = $stmt->fetchAll();
 ?>
 
-<div class="hero-section">
-    <div class="hero-content">
-        <h1>StoreScobars</h1>
-        <p>A melhor loja de roupas online</p>
-        <a href="#produtos-destaque" class="btn btn-secondary">Ver Produtos</a>
+<div class="breadcrumbs">
+    <div class="container">
+        <a href="http://localhost/project/index.php">Início</a> &gt;
+        <span><?= $categoria['nome'] ?></span>
     </div>
 </div>
 
-<section id="produtos-destaque" class="section">
-    <div class="section-header">
-        <h2>Produtos em Destaque</h2>
-        <p>Confira nossos produtos mais recentes</p>
+<div class="container">
+    <div class="category-header">
+        <h1 class="category-title"><?= $categoria['nome'] ?></h1>
     </div>
     
     <div class="products-grid">
@@ -41,7 +55,6 @@ $produtos = $stmt->fetchAll();
                     </div>
                     <div class="product-details">
                         <h3 class="product-title"><?= $produto['nome'] ?></h3>
-                        <div class="product-category"><?= $produto['categoria_nome'] ?></div>
                         <div class="product-price">R$ <?= number_format($produto['preco'], 2, ',', '.') ?></div>
                         <div class="product-actions">
                             <a href="http://localhost/project/produto.php?id=<?= $produto['id'] ?>" class="btn btn-primary">Ver Detalhes</a>
@@ -56,24 +69,9 @@ $produtos = $stmt->fetchAll();
                 </div>
             <?php endforeach; ?>
         <?php else: ?>
-            <p>Nenhum produto disponível no momento.</p>
+            <p class="no-products">Nenhum produto disponível nesta categoria no momento.</p>
         <?php endif; ?>
     </div>
-</section>
-
-<section class="categories-section">
-    <div class="section-header">
-        <h2>Nossas Categorias</h2>
-        <p>Navegue por categoria para encontrar o que você procura</p>
-    </div>
-    
-    <div class="categories-grid">
-        <?php foreach ($categorias as $categoria): ?>
-            <a href="http://localhost/project/categoria.php?id=<?= $categoria['id'] ?>" class="category-card">
-                <div class="category-title"><?= $categoria['nome'] ?></div>
-            </a>
-        <?php endforeach; ?>
-    </div>
-</section>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>

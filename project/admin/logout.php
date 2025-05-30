@@ -1,11 +1,13 @@
 <?php
 session_start();
 
-// Destroy the session
-$_SESSION = array();
+// Destruir todas as variáveis de sessão
+$_SESSION = [];
+
+// Destruir a sessão
 session_destroy();
 
-// Redirect to login page
-header('Location: login.php');
+// Redirecionar para a página de login
+header('Location: /project/admin/login.php');
 exit;
 ?>

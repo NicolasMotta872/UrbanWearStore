@@ -1,85 +1,47 @@
-<header class="site-header">
-    <div class="container">
-        <div class="header-wrapper">
+<?php
+session_start();
+require_once __DIR__ . '/../config/database.php';
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loja Virtual</title>
+    <link rel="stylesheet" href="http://localhost/project/assets/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
             <div class="logo">
-                <a href="index.php">
-                    <h1>UrbanWear</h1>
-                </a>
+                <a href="http://localhost/project/index.php">Loja Virtual</a>
             </div>
-            
-            <div class="search-bar">
-                <form action="products.php" method="GET" id="headerSearchForm">
-                    <input type="text" name="search" id="headerSearchInput" placeholder="Search for products...">
-                    <button type="submit"><i class="fas fa-search"></i></button>
-                </form>
-                <div id="searchResults" class="search-results"></div>
-            </div>
-            
             <nav class="main-nav">
                 <ul>
-                    <li><a href="index.php">Home</a></li>
-                    <li class="dropdown">
-                        <a href="products.php">Loja <i class="fas fa-chevron-down"></i></a>
-                        <div class="dropdown-menu">
-                            <?php 
-                            $nav_categories = getAllCategories($conn);
-                            foreach($nav_categories as $category): 
-                            ?>
-                            <a href="products.php?category=<?= $category['id'] ?>"><?= $category['name'] ?></a>
-                            <?php endforeach; ?>
-                            <a href="products.php?sale=1" class="sale-link">Items</a>
-                        </div>
+                    <li><a href="http://localhost/project/index.php">Início</a></li>
+                    <?php 
+                    // Get categories for menu
+                    $stmt = $pdo->prepare("SELECT * FROM categorias ORDER BY nome");
+                    $stmt->execute();
+                    $categorias = $stmt->fetchAll();
+                    
+                    foreach($categorias as $categoria): 
+                    ?>
+                    <li>
+                        <a href="http://localhost/project/categoria.php?id=<?= $categoria['id'] ?>"><?= $categoria['nome'] ?></a>
                     </li>
-                    <li><a href="about.php">Sobre</a></li>
-                    <li><a href="contact.php">Contato</a></li>
+                    <?php endforeach; ?>
+                    <li><a href="http://localhost/project/carrinho.php" class="cart-link">Carrinho 
+                    <?php 
+                    if(isset($_SESSION['carrinho']) && count($_SESSION['carrinho']) > 0) {
+                        $total_itens = array_sum(array_column($_SESSION['carrinho'], 'quantidade'));
+                        echo "<span class=\"cart-count\">$total_itens</span>";
+                    }
+                    ?>
+                    </a></li>
                 </ul>
             </nav>
-            
-            <div class="header-actions">
-                <button id="searchToggle" class="mobile-search-toggle">
-                    <i class="fas fa-search"></i>
-                </button>
-                <a href="#" class="nav-icon">
-                    <i class="fas fa-user"></i>
-                </a>
-                <button id="cartToggle" class="nav-icon cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span id="cartCount" class="cart-count">0</span>
-                </button>
-                <button id="mobileMenuToggle" class="mobile-menu-toggle">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
-            </div>
         </div>
-    </div>
-    
-    <div class="mobile-search">
+    </header>
+    <main class="main-content">
         <div class="container">
-            <form action="products.php" method="GET">
-                <input type="text" name="search" placeholder="Buscar produtos...">
-                <button type="submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
-    </div>
-    
-    <div class="mobile-menu">
-        <nav>
-            <ul>
-                <li><a href="index.php">Home</a></li>
-                <li>
-                    <a href="#" class="has-submenu">Loja <i class="fas fa-chevron-down"></i></a>
-                    <ul class="submenu">
-                        <?php foreach($nav_categories as $category): ?>
-                        <li><a href="products.php?category=<?= $category['id'] ?>"><?= $category['name'] ?></a></li>
-                        <?php endforeach; ?>
-                        <li><a href="products.php?sale=1" class="sale-link">Items</a></li>
-                    </ul>
-                </li>
-                <li><a href="about.php">Sobre</a></li>
-                <li><a href="contact.php">Contato</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
